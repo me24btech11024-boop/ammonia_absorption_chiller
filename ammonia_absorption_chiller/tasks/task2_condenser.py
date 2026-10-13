@@ -41,7 +41,7 @@ def run_task2():
         psych = ZonePsychrometrics.solve_condition(cond["T_db"], cond["rh"], cond["solar"])
         Q_evap = psych["Q_evap_chiller_kW"]
         
-        T_cond_est = cond["T_db"] + 10.0
+        T_cond_est = cond["T_db"] + 12.0
         for _ in range(10):
             cycle = AbsorptionCycle.solve_cycle(Q_evap_kW=Q_evap, T_cond_C=T_cond_est)
             Q_cond_kW = Q_evap + cycle["Q_gen_kW"] + cycle["W_pump_kW"]
