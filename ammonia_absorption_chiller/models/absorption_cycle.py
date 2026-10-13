@@ -158,6 +158,7 @@ class AbsorptionCycle:
 
         return {
             "P_low_bar": P_low_bar,
+            "Q_evap_kW": Q_evap_kW,
             "P_high_bar": P_high_bar,
             "T_gen_C": T_gen_C,
             "m_r_kg_s": m_r,
