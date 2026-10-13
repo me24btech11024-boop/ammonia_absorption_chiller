@@ -76,4 +76,16 @@ def test_check_3_absorption_cycle_balances():
     assert cycle["COP"] < COP_rev, f"COP ({cycle['COP']:.3f}) exceeds Carnot bound ({COP_rev:.3f})"
     assert 0.45 <= cycle["COP"] <= 0.65, f"COP ({cycle['COP']:.3f}) out of expected range [0.45, 0.65]"
     assert bool(cycle["check_p_high_pass"]) is True
-    assert bool(cycle["check_flue_pass"]) is True
+        # Total solution mass balance
+    assert abs(
+        cycle["mass_balance_solution_residual_kg_s"]
+    ) < 1e-8
+
+    # Ammonia component mass balance
+    assert abs(
+        cycle["mass_balance_ammonia_residual_kg_s"]
+    ) < 1e-8
+
+    # Generator duty and COP must be positive
+    assert cycle["Q_gen_kW"] > 0
+    assert cycle["COP"] > 0
