@@ -10,6 +10,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ammonia_absorption_chiller
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,8 +26,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pytest
+          python -m pip install -r requirements.txt
+          python -m pip install pytest
+
+      - name: Verify NumPy
+        run: python -c "import numpy; print(numpy.__version__)"
 
       - name: Run tests
         run: python -m pytest -v
