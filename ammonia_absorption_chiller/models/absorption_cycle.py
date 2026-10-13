@@ -149,12 +149,11 @@ class AbsorptionCycle:
             cls._fail("Flue-gas available temperature drop is non-positive.")
         m_flue_gas = Q_gen_kW / (cls.FLUE_GAS_CP * dT_flue_max)
 
-        # Required total heat rejection from the whole-cycle first law.
+       # Required total heat rejection from the whole-cycle first law.
+        # This is an estimate, not an independently closed energy balance.
         # Absorber and condenser duties are not independently solved here.
         Q_reject_required_kW = Q_gen_kW + Q_evap_kW + W_pump_kW
-        energy_balance_residual_kW = (
-            Q_gen_kW + Q_evap_kW + W_pump_kW - Q_reject_required_kW
-        )
+        energy_balance_residual_kW = None
 
         return {
             "P_low_bar": P_low_bar,
