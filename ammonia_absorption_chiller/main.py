@@ -42,7 +42,7 @@ def main():
     print_section_header("TASK 2: Condenser Design Sizing & Off-Design Performance")
     design_sizing, df_off_design = run_task2()
     print(f"Selected Condenser Type: {design_sizing['condenser_type'].upper()}")
-    print(f"Design Heat Duty: {design_sizing['UA_kW_K']:.2f} kW/K")
+    print(f"Design Heat-Transfer Conductance (UA): {design_sizing['UA_kW_K']:.2f} kW/K")
     print(f"Required Surface Area: {design_sizing['area_m2']:.2f} m^2\n")
     print(tabulate(df_off_design, headers="keys", tablefmt="pretty", showindex=False))
 
