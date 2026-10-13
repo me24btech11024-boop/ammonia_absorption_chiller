@@ -23,11 +23,16 @@ def test_check_1_psychrometric_mixing():
 
     w_mix_calc = 0.7 * w_room + 0.3 * w_out
     h_mix_calc = 0.7 * h_room + 0.3 * h_out
-   T_mix_calc = (
-    h_mix_calc - 2501.0 * w_mix_calc
-) / (
-    1.006 + 1.86 * w_mix_calc
-)
+    
+    w_mix_calc = 0.7 * w_room + 0.3 * w_out
+    h_mix_calc = 0.7 * h_room + 0.3 * h_out
+
+    T_mix_calc = (
+        h_mix_calc - 2501.0 * w_mix_calc
+    ) / (
+        1.006 + 1.86 * w_mix_calc
+    )
+
 
     w_mix_hand = 0.01575
     h_mix_hand = 67.84
