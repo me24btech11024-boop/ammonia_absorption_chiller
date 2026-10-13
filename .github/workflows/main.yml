@@ -34,3 +34,8 @@ jobs:
 
       - name: Run tests
         run: python -m pytest -v
+
+        
+      - name: Run full project simulation
+        run: python main.py
+        working-directory: ammonia_absorption_chiller
