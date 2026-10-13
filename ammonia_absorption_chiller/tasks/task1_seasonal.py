@@ -9,8 +9,8 @@ from models.absorption_cycle import AbsorptionCycle
 
 def run_task1():
     conditions = [
-        {"name": "Summer Day", "T_db": 50.0, "rh": 40.0, "solar": True},
-        {"name": "Summer Night", "T_db": 50.0, "rh": 30.0, "solar": False},
+        {"name": "Summer Day", "T_db": 40.0, "rh": 50.0, "solar": True},
+        {"name": "Summer Night", "T_db": 30.0, "rh": 50.0, "solar": False},
         {"name": "Monsoon Day", "T_db": 35.0, "rh": 85.0, "solar": True},
         {"name": "Monsoon Night", "T_db": 30.0, "rh": 85.0, "solar": False},
         {"name": "Winter Day", "T_db": 28.0, "rh": 50.0, "solar": True},
