@@ -106,3 +106,6 @@ assert cycle["Q_reject_required_kW"] > 0
     assert cycle["Q_reject_required_kW"] == pytest.approx(
         expected_rejection, rel=1e-8
     )
+    assert cycle["Q_reject_required_kW"] == pytest.approx(
+        expected_rejection, rel=1e-8
+    )
