@@ -91,13 +91,12 @@ def test_check_3_absorption_cycle_balances():
     assert cycle["COP"] > 0
 
     # Basic physical and numerical sanity checks
-    assert cycle["Q_evap_kW"] == pytest.approx(5000.0)
-    assert cycle["Q_gen_kW"] > 0
-    assert cycle["Q_cond_kW"] > 0
-    assert cycle["Q_abs_kW"] > 0
-    assert cycle["COP"] > 0
-    assert cycle["W_pump_kW"] >= 0
-
+  # Basic physical and numerical sanity checks
+assert cycle["Q_evap_kW"] == pytest.approx(5000.0)
+assert cycle["Q_gen_kW"] > 0
+assert cycle["COP"] > 0
+assert cycle["W_pump_kW"] >= 0
+assert cycle["Q_reject_required_kW"] > 0
     # The reported heat rejection must satisfy the overall first-law balance.
     expected_rejection = (
         cycle["Q_gen_kW"]
