@@ -107,4 +107,3 @@ def test_check_3_absorption_cycle_balances():
     assert cycle["Q_reject_required_kW"] == pytest.approx(
         expected_rejection, rel=1e-8
     )
-```
