@@ -1,122 +1,32 @@
+name: Ammonia Absorption Chiller Tests
 
-"""
-Task 1: Seasonal Load Analysis and Ammonia Circuit Sizing.
-"""
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
-import pandas as pd
+jobs:
+  test:
+    runs-on: ubuntu-latest
 
-from models.zone_psychrometrics import ZonePsychrometrics
-from models.absorption_cycle import AbsorptionCycle
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-def run_task1():
-    conditions = [
-        {"name": "Summer Day", "T_db": 40.0, "rh": 50.0, "solar": True},
-        {"name": "Summer Night", "T_db": 30.0, "rh": 50.0, "solar": False},
-        {"name": "Monsoon Day", "T_db": 35.0, "rh": 85.0, "solar": True},
-        {"name": "Monsoon Night", "T_db": 30.0, "rh": 85.0, "solar": False},
-        {"name": "Winter Day", "T_db": 28.0, "rh": 50.0, "solar": True},
-        {"name": "Winter Night", "T_db": 16.0, "rh": 50.0, "solar": False},
-    ]
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+        working-directory: ammonia_absorption_chiller
 
-    # Calculate the zone load for each seasonal condition.
-    seasonal_data = []
+      - name: Run tests
+        run: python -m pytest -v
+        working-directory: ammonia_absorption_chiller
 
-    for cond in conditions:
-        psych = ZonePsychrometrics.solve_condition(
-            T_db_out=cond["T_db"],
-            rh_out=cond["rh"],
-            solar_on=cond["solar"],
-            fresh_air_frac=0.30,
-        )
-        seasonal_data.append((cond, psych))
-
-    max_load = max(
-        (float(psych["Q_evap_chiller_kW"])
-         for _, psych in seasonal_data),
-        default=0.0,
-    )
-
-    results = []
-
-    for cond, psych in seasonal_data:
-        q_load = float(psych["Q_evap_chiller_kW"])
-        t_cond = cond["T_db"] + 12.0
-
-        turndown = (
-            100.0 * q_load / max_load if max_load > 0 else 0.0
-        )
-
-        row = {
-            "Condition": cond["name"],
-            "T_cond_est_C": round(t_cond, 2),
-            "T_mix_C": round(psych["T_mix"], 2),
-            "ADP_C": round(psych["ADP"], 2),
-            "w_supply_g_kg": round(psych["w_supply"] * 1000, 3),
-            "Room_RH_percent": round(
-                psych.get(
-                    "room_rh_percent",
-                    psych.get("rh_room", float("nan")),
-                ),
-                1,
-            ),
-            "RH_violated": psych["rh_violated"],
-            "Q_evap_load_kW": round(q_load, 2),
-            "Turndown_percent": round(turndown, 1),
-            "Cycle_feasible": False,
-            "P_high_bar": float("nan"),
-            "Q_gen_kW": float("nan"),
-            "COP": float("nan"),
-            "m_refrigerant_kg_s": float("nan"),
-            "m_flue_gas_kg_s": float("nan"),
-            "Flue_OK": False,
-            "Cycle_status": "",
-        }
-
-        try:
-            cycle = AbsorptionCycle.solve_cycle(
-                Q_evap_kW=q_load,
-                T_cond_C=t_cond,
-                T_evap_C=2.0,
-            )
-
-            row.update({
-                "Cycle_feasible": bool(cycle["check_p_high_pass"]),
-                "P_high_bar": round(cycle["P_high_bar"], 3),
-                "Q_gen_kW": round(cycle["Q_gen_kW"], 2),
-                "COP": round(cycle["COP"], 3),
-                "m_refrigerant_kg_s": round(cycle["m_r_kg_s"], 5),
-                "m_flue_gas_kg_s": round(
-                    cycle["m_flue_gas_kg_s"], 3
-                ),
-                "Flue_OK": bool(cycle["check_flue_pass"]),
-                "Cycle_status": cycle.get("model_status", "Calculated"),
-            })
-
-        except (ValueError, ArithmeticError, KeyError) as exc:
-            row["Cycle_status"] = f"INFEASIBLE: {exc}"
-
-        results.append(row)
-
-    df_results = pd.DataFrame(results)
-
-    feasible = df_results[
-        df_results["Cycle_feasible"]
-        & df_results["Q_gen_kW"].notna()
-    ]
-
-    if feasible.empty:
-        governing_condition = "No feasible cycle condition"
-    else:
-        governing_condition = feasible.loc[
-            feasible["Q_evap_load_kW"].idxmax(),
-            "Condition",
-        ]
-
-    return df_results, governing_condition
-
-
-if __name__ == "__main__":
-    df, governing_condition = run_task1()
-    print(df.to_string(index=False))
-    print(f"\nGoverning feasible condition: {governing_condition}")
+      - name: Run full project simulation
+        run: python main.py
+        working-directory: ammonia_absorption_chiller
