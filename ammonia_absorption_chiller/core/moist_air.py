@@ -75,33 +75,62 @@ class MoistAir:
         p_sat = cls.p_sat_water_antoine(T_C)
         rh = (p_v / p_sat) * 100.0
         return min(rh, 100.0)
-
+        
     @classmethod
-    def wet_bulb_temperature(cls, T_db_C: float, rh_percent: float, P_kPa: float = P_ATM_KPA) -> float:
-        """Solves wet-bulb temperature T_wb (°C) iteratively using adiabatic saturation balance."""
+    def wet_bulb_temperature(
+        cls,
+        T_db_C: float,
+        rh_percent: float,
+        P_kPa: float = P_ATM_KPA,
+    ) -> float:
+        """Solve the adiabatic-saturation energy balance for wet-bulb temperature."""
+        if not np.isfinite(T_db_C) or not np.isfinite(rh_percent):
+            raise ValueError("Dry-bulb temperature and RH must be finite.")
+        if not 0.0 <= rh_percent <= 100.0:
+            raise ValueError("Relative humidity must be between 0 and 100%.")
+        if P_kPa <= 0.0:
+            raise ValueError("Pressure must be positive.")
+
+        if rh_percent == 100.0:
+            return float(T_db_C)
+
         w = cls.humidity_ratio(T_db_C, rh_percent, P_kPa)
         h_actual = cls.enthalpy(T_db_C, w)
 
         def residual(T_wb_trial):
-            w_sat_wb = cls.humidity_ratio(T_wb_trial, 100.0, P_kPa)
-            h_sat_wb = cls.enthalpy(T_wb_trial, w_sat_wb)
-            cp_liquid = 4.184
-            h_f = cp_liquid * T_wb_trial
-            
-            h_calc = h_sat_wb - (w_sat_wb - w) * h_f
-            return h_calc - h_actual
+            w_sat = cls.humidity_ratio(T_wb_trial, 100.0, P_kPa)
+            h_sat = cls.enthalpy(T_wb_trial, w_sat)
+            h_liquid = 4.184 * T_wb_trial
+            return h_sat - (w_sat - w) * h_liquid - h_actual
 
-        t1 = T_db_C - 5.0
-        t2 = T_db_C
+        # For unsaturated air, wet-bulb temperature lies below dry-bulb.
+        low = min(-50.0, T_db_C - 50.0)
+        high = T_db_C
+        f_low = residual(low)
+        f_high = residual(high)
 
-        for _ in range(50):
-            r1 = residual(t1)
-            r2 = residual(t2)
-            if abs(r2 - r1) < 1e-7:
+        # Expand the lower bracket if necessary.
+        for _ in range(20):
+            if f_low * f_high <= 0.0:
                 break
-            t_next = t2 - r2 * (t2 - t1) / (r2 - r1)
-            t1, t2 = t2, t_next
-            if abs(t2 - t1) < 1e-4:
-                break
+            low -= 50.0
+            f_low = residual(low)
+        else:
+            raise ValueError("Could not bracket the wet-bulb energy-balance root.")
 
-        return t2
+        # Bisection: slower than secant, but bounded and robust.
+        for _ in range(200):
+            mid = 0.5 * (low + high)
+            f_mid = residual(mid)
+
+            if abs(f_mid) < 1e-7 or abs(high - low) < 1e-5:
+                return float(mid)
+
+            if f_low * f_mid <= 0.0:
+                high = mid
+                f_high = f_mid
+            else:
+                low = mid
+                f_low = f_mid
+
+        raise ValueError("Wet-bulb solver did not converge.")
