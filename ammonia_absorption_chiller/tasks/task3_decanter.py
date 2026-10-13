@@ -1,4 +1,4 @@
-Task 3 Execution Handler: Water Decanter (Condensate) System Sizing.
+"""Task 3 Execution Handler: Water Decanter (Condensate) System Sizing.
 
 Calculates:
 1. Seasonal condensate generation per zone and district for all six conditions.
