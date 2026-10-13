@@ -1,17 +1,20 @@
-name: Ammonia Absorption Chiller Tests
+name: Project 2 Python Tests
 
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ammonia_absorption_chiller
+
     steps:
-      - name: Check out repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -20,13 +23,12 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: python -m pip install -r requirements.txt
-        working-directory: ammonia_absorption_chiller
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install pytest
+      - name: Verify NumPy
+        run: python -c "import numpy; print(numpy.__version__)"
 
       - name: Run tests
         run: python -m pytest -v
-        working-directory: ammonia_absorption_chiller
-
-      - name: Run full project simulation
-        run: python main.py
-        working-directory: ammonia_absorption_chiller
