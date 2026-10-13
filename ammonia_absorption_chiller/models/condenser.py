@@ -31,7 +31,14 @@ class CondenserModel:
             lmtd = (dt1 - dt2) / np.log(dt1 / dt2)
 
         UA_design_kW_K = Q_cond_kW / lmtd
-        U_coeff = 0.60  # kW/m^2*K for evaporative
+        if condenser_type == "air_cooled":
+            U_coeff = 0.030  # kW/(m^2 K): 30 W/(m^2 K)
+        elif condenser_type == "evaporative":
+            U_coeff = 0.600  # kW/(m^2 K): 600 W/(m^2 K)
+        else:
+            raise ValueError(
+                "condenser_type must be 'air_cooled' or 'evaporative'"
+            )
         area_m2 = UA_design_kW_K / U_coeff
 
         return {
