@@ -1,4 +1,3 @@
-```python
 """
 Condenser model for air-cooled and evaporative condensers.
 
@@ -272,4 +271,3 @@ class CondenserModel:
                 "provisional: simplified LMTD and assumed cooling outlet"
             ),
         }
-```
