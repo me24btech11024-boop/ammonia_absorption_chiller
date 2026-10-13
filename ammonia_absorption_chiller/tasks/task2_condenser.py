@@ -11,7 +11,7 @@ import pandas as pd
 
 from models.zone_psychrometrics import ZonePsychrometrics
 from models.absorption_cycle import AbsorptionCycle
-from models.condenser import Condenser
+from models.condenser import condenser
 
 
 CONDITIONS = [
