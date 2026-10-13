@@ -1,6 +1,11 @@
 """
 Automated Validation Test Suite asserting exact numerical tolerances (Checks 1, 2, and 3).
 """
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
 
 import pytest
 from core.moist_air import MoistAir
