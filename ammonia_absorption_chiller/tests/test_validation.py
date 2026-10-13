@@ -90,7 +90,6 @@ def test_check_3_absorption_cycle_balances():
     assert cycle["Q_gen_kW"] > 0
     assert cycle["COP"] > 0
 
-```python
     # Basic physical and numerical sanity checks
     assert cycle["Q_evap_kW"] == pytest.approx(5000.0)
     assert cycle["Q_gen_kW"] > 0
